@@ -126,19 +126,111 @@
         render();
       }
 
-      function drawCell(x, y, color) {
-        ctx.fillStyle = color;
-        ctx.fillRect(x * cellSize, y * cellSize, cellSize - 1, cellSize - 1);
+      function drawFood(x, y) {
+        const px = x * cellSize;
+        const py = y * cellSize;
+        const center = cellSize / 2;
+
+        ctx.fillStyle = '#e74c3c';
+        ctx.beginPath();
+        ctx.arc(px + center, py + center, cellSize * 0.36, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#2c3e50';
+        ctx.fillRect(px + center - 1, py + 2, 2, 5);
+      }
+
+      function drawSnakeBody(segment) {
+        const px = segment.x * cellSize;
+        const py = segment.y * cellSize;
+        const center = cellSize / 2;
+
+        ctx.fillStyle = '#2f9e44';
+        ctx.beginPath();
+        ctx.arc(px + center, py + center, cellSize * 0.43, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#74c69d';
+        ctx.beginPath();
+        ctx.arc(px + center, py + center, cellSize * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawSnakeHead(segment) {
+        const px = segment.x * cellSize;
+        const py = segment.y * cellSize;
+        const center = cellSize / 2;
+        const eyeOffset = cellSize * 0.16;
+        const eyeRadius = cellSize * 0.08;
+        const mouthRadius = cellSize * 0.2;
+
+        ctx.fillStyle = '#38b24d';
+        ctx.beginPath();
+        ctx.arc(px + center, py + center, cellSize * 0.46, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#74c69d';
+        ctx.beginPath();
+        ctx.arc(px + center, py + center, cellSize * 0.24, 0, Math.PI * 2);
+        ctx.fill();
+
+        let eye1 = { x: px + center - eyeOffset, y: py + center - eyeOffset };
+        let eye2 = { x: px + center + eyeOffset, y: py + center - eyeOffset };
+        let smileCenter = { x: px + center, y: py + center + eyeOffset };
+        let smileStart = 0.15 * Math.PI;
+        let smileEnd = 0.85 * Math.PI;
+
+        if (direction.x === -1) {
+          eye1 = { x: px + center - eyeOffset, y: py + center - eyeOffset };
+          eye2 = { x: px + center - eyeOffset, y: py + center + eyeOffset };
+          smileCenter = { x: px + center - eyeOffset * 0.8, y: py + center };
+          smileStart = 0.65 * Math.PI;
+          smileEnd = 1.35 * Math.PI;
+        } else if (direction.x === 1) {
+          eye1 = { x: px + center + eyeOffset, y: py + center - eyeOffset };
+          eye2 = { x: px + center + eyeOffset, y: py + center + eyeOffset };
+          smileCenter = { x: px + center + eyeOffset * 0.8, y: py + center };
+          smileStart = -0.35 * Math.PI;
+          smileEnd = 0.35 * Math.PI;
+        } else if (direction.y === -1) {
+          eye1 = { x: px + center - eyeOffset, y: py + center - eyeOffset };
+          eye2 = { x: px + center + eyeOffset, y: py + center - eyeOffset };
+          smileCenter = { x: px + center, y: py + center - eyeOffset * 0.8 };
+          smileStart = 1.15 * Math.PI;
+          smileEnd = 1.85 * Math.PI;
+        }
+
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(eye1.x, eye1.y, eyeRadius, 0, Math.PI * 2);
+        ctx.arc(eye2.x, eye2.y, eyeRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#111';
+        ctx.beginPath();
+        ctx.arc(eye1.x, eye1.y, eyeRadius * 0.5, 0, Math.PI * 2);
+        ctx.arc(eye2.x, eye2.y, eyeRadius * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#1f5131';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(smileCenter.x, smileCenter.y, mouthRadius, smileStart, smileEnd);
+        ctx.stroke();
       }
 
       function render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         snake.forEach((segment, index) => {
-          drawCell(segment.x, segment.y, index === 0 ? '#2ecc71' : '#27ae60');
+          if (index === 0) {
+            drawSnakeHead(segment);
+          } else {
+            drawSnakeBody(segment);
+          }
         });
 
-        drawCell(food.x, food.y, '#e74c3c');
+        drawFood(food.x, food.y);
 
         if (gameOver) {
           ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
