@@ -46,7 +46,7 @@
       <h1>Snake</h1>
       <div id="scoreboard">Puntaje: <strong id="score">0</strong></div>
       <canvas id="gameCanvas" width="400" height="400" aria-label="Juego Snake"></canvas>
-      <p class="help">Usa las flechas para moverte. Presiona Enter para reiniciar cuando pierdas.</p>
+      <p class="help">Usa flechas o WASD para moverte. Presiona Enter para reiniciar cuando pierdas.</p>
     </main>
 
     <script>
@@ -100,15 +100,14 @@
         const head = snake[0];
         const newHead = { x: head.x + direction.x, y: head.y + direction.y };
 
-        const hitWall =
-          newHead.x < 0 ||
-          newHead.x >= boardSize ||
-          newHead.y < 0 ||
-          newHead.y >= boardSize;
+        if (newHead.x < 0) newHead.x = boardSize - 1;
+        if (newHead.x >= boardSize) newHead.x = 0;
+        if (newHead.y < 0) newHead.y = boardSize - 1;
+        if (newHead.y >= boardSize) newHead.y = 0;
 
         const hitSelf = snake.some((segment) => segment.x === newHead.x && segment.y === newHead.y);
 
-        if (hitWall || hitSelf) {
+        if (hitSelf) {
           gameOver = true;
           render();
           return;
@@ -164,9 +163,13 @@
           ArrowDown: { x: 0, y: 1 },
           ArrowLeft: { x: -1, y: 0 },
           ArrowRight: { x: 1, y: 0 },
+          w: { x: 0, y: -1 },
+          s: { x: 0, y: 1 },
+          a: { x: -1, y: 0 },
+          d: { x: 1, y: 0 },
         };
 
-        const requestedDirection = controls[event.key];
+        const requestedDirection = controls[event.key] || controls[event.key.toLowerCase()];
         if (!requestedDirection) {
           return;
         }
